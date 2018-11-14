@@ -1,5 +1,14 @@
 Shader "Time of Day/Atmosphere"
 {
+	Properties
+	{
+		[Toggle(DB_SHOW_SCATTERING)]_ShowScattering("Show Scattering?", Float) = 0
+		[Toggle(DB_SHOW_CLOUND)]_ShowCloud("Show Cloud?", Float) = 0
+		[Toggle(DB_SHOW_FOG)]_ShowFog("Show Fogness?", Float) = 0
+		[Toggle(DB_SHOW_ADD_COLOR)]_ShowAddColor("Show Additive Color?", Float) = 0
+		[Toggle(DB_SHOW_ALPHA)]_ShowAlpha("Show Alpha?", Float) = 0
+	}
+
     SubShader
     {
         Tags
@@ -22,6 +31,14 @@ Shader "Time of Day/Atmosphere"
             Blend SrcAlpha OneMinusSrcAlpha
 
             CGPROGRAM
+
+			#pragma shader_feature DB_SHOW_SCATTERING
+			#pragma shader_feature DB_SHOW_CLOUND
+			#pragma shader_feature DB_SHOW_FOG
+			#pragma shader_feature DB_SHOW_ALPHA
+			#pragma shader_feature DB_SHOW_ADD_COLOR
+
+
             #pragma vertex vert
             #pragma fragment frag
             #include "UnityCG.cginc"
@@ -117,19 +134,40 @@ Shader "Time of Day/Atmosphere"
                 float3 L_sun  = L(-v.normal, TOD_LocalSunDirection);
                 float3 L_moon = L();
 
+				o.color.rgb = 0;
+				o.color.a = 1;
+
                 // Add scattering color
-                o.color.rgb = (1-T_val) * (E_sun*L_sun + E_moon*L_moon);
-                o.color.a   = 10 * max(max(o.color.r, o.color.g), o.color.b);
+				float4 scatteringColor;
+				scatteringColor.rgb = (1-T_val) * (E_sun*L_sun + E_moon*L_moon);
+				scatteringColor.a   = 10 * max(max(scatteringColor.r, scatteringColor.g), scatteringColor.b);
 
                 // Add simple moon halo
-                o.color.rgb += TOD_MoonHaloColor * pow(max(0, dot(TOD_LocalMoonDirection, -v.normal)), 10);
+				float3 moonHalo = TOD_MoonHaloColor * pow(max(0, dot(TOD_LocalMoonDirection, -v.normal)), 10);
 
                 // Add additive color
-                o.color += TOD_AdditiveColor;
 
                 // Add fog color
-                o.color.rgb = lerp(o.color.rgb, TOD_CloudColor, _Fogginess);
-                o.color.a += _Fogginess;
+				o.color = scatteringColor + TOD_AdditiveColor;
+				o.color.rgb += moonHalo;
+				o.color.rgb = lerp(o.color.rgb, TOD_CloudColor, _Fogginess);
+				o.color.a += _Fogginess;
+
+#if defined(DB_SHOW_SCATTERING)
+				o.color = scatteringColor;
+#elif defined(DB_SHOW_CLOUND)
+				o.color.rgb = TOD_CloudColor;
+				o.color.a = 1;
+#elif defined(DB_SHOW_FOG)
+				o.color.rgb = _Fogginess;
+				o.color.a = 1;
+#elif defined(DB_SHOW_ADD_COLOR)
+				o.color = TOD_AdditiveColor;
+				o.color.a = 1;
+#elif defined(DB_SHOW_ALPHA)
+				o.color.rgb = o.color.a;
+				o.color.a = 1;
+#endif
 
                 // Clamp alpha to [0, 1]
                 o.color.a = saturate(o.color.a);
