@@ -65,6 +65,7 @@ Shader "Time of Day/Atmosphere"
             uniform float2 _BetaMiePhase;
             uniform float3 _BetaNight;
 
+			// Sun irradiance
             inline float3 L(float3 viewdir, float3 sundir) {
                 float3 res;
 
@@ -91,6 +92,9 @@ Shader "Time of Day/Atmosphere"
                 return _BetaNight;
             }
 
+			// Calculate attenuated spectral distribution(by optical depth)
+			//¿‡±»extinctionœÓ
+			// See [7] page 28 equation 2.7,2.8
             inline float3 T(float height) {
                 float3 res;
 
@@ -140,7 +144,7 @@ Shader "Time of Day/Atmosphere"
 				o.color.rgb = 0;
 				o.color.a = 1;
 
-                // Add scattering color
+                // Add inscattering color(un-extincted light through the atmosphere from the sun/moon )
 				float4 scatteringColor;
 				scatteringColor.rgb = (1-T_val) * (E_sun*L_sun + E_moon*L_moon);
 				scatteringColor.a   = 10 * max(max(scatteringColor.r, scatteringColor.g), scatteringColor.b);
