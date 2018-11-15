@@ -112,6 +112,9 @@ Shader "Time of Day/Atmosphere"
                 float3 beta = _BetaRayleigh * sr
                             + _BetaMie * sm;
 
+				//beta = _BetaRayleigh * sr * 10;
+				//beta = _BetaMie * sm * 100;
+
                 // Scattering solution
                 // See [5] page 11
                 res = exp(-beta);
@@ -141,6 +144,11 @@ Shader "Time of Day/Atmosphere"
 				float4 scatteringColor;
 				scatteringColor.rgb = (1-T_val) * (E_sun*L_sun + E_moon*L_moon);
 				scatteringColor.a   = 10 * max(max(scatteringColor.r, scatteringColor.g), scatteringColor.b);
+
+				//scatteringColor.rgb = L_sun * 0.1;
+				//scatteringColor.rgb = E_sun;
+				//scatteringColor.rgb = T_val;
+				//scatteringColor.a = 1;
 
                 // Add simple moon halo
 				float3 moonHalo = TOD_MoonHaloColor * pow(max(0, dot(TOD_LocalMoonDirection, -v.normal)), 10);
