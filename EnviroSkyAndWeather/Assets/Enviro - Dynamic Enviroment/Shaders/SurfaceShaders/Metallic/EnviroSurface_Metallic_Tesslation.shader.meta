@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: c511aa015accfb04790aa7cee51646b9
+timeCreated: 1450104031
+licenseType: Store
+ShaderImporter:
+  defaultTextures:
+  - _WetNormal: {fileID: 2800000, guid: a53cf5449d11a15d1100a04b44295342, type: 3}
+  - _Albedo: {fileID: 2800000, guid: 85802eac53a318647b463cb048c1639d, type: 3}
+  - _NormalMap: {fileID: 2800000, guid: 7c6effe7fa098f44c9047d1db220fa9b, type: 3}
+  - _SnowAlbedo: {fileID: 2800000, guid: 8c62036bc84cb264ea61aabf5773ae02, type: 3}
+  - _SnowNormal: {fileID: 2800000, guid: fb9a336e4ad0b084f806d539d827eb2f, type: 3}
+  - _Metallic: {fileID: 2800000, guid: e3ca2eae2afadce41997355b52b43e95, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
