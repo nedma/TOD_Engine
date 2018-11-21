@@ -17,6 +17,12 @@ Shader "Enviro/Clouds" {
         _lightIntensity ("global light intensity", Float ) = 1
         [HideInInspector]_Offset ("Offset", Float ) = 1
         [HideInInspector]_CloudNormalsDirection ("_CloudNormalsDirection", Vector) = (1, -2, -1, 0)
+
+
+			 [Toggle(LOCK_FAKE_DEPTH)]_LockFakeDepth("LockFakeDepth?", Float) = 0
+			 [Toggle(LOCK_ALPHA)]_LockAlpha("LockAlpha?", Float) = 0
+			 [Toggle(NO_MORPH)]_NoMorph("NoMorph?", Float) = 0
+			 [Toggle(ONLY_BASE_MORPH)]_OnlyBaseMorph("OnlyBaseMorph?", Float) = 0
     }
     SubShader {
         Tags {
@@ -34,6 +40,10 @@ Shader "Enviro/Clouds" {
             #pragma vertex vert
             #pragma fragment frag
             
+			#pragma multi_compile _ LOCK_FAKE_DEPTH
+			#pragma multi_compile _ LOCK_ALPHA
+			#pragma multi_compile _ NO_MORPH ONLY_BASE_MORPH
+
             #define UNITY_PASS_FORWARDBASE
             
             #include "UnityCG.cginc"
@@ -106,18 +116,32 @@ Shader "Enviro/Clouds" {
                 fixed4 cloudTexture = tex2D(_CloudsMap, nUV);
                 fixed4 cloudTexture2 = tex2D(_CloudsMap, nUV2);
 
+				// Texture alpha/vertex color.a: coverage
                 fixed baseMorph = ((saturate(cloudTexture.a + _CloudCover) * i.vertexColor.a) - cloudTexture2.a);
-                fixed3 baseMorphNormals = ((cloudTexture.rgb + _CloudCover) * i.vertexColor.a) - (cloudTexture2.rgb);
+                //fixed3 baseMorphNormals = ((cloudTexture.rgb + _CloudCover) * i.vertexColor.a) - (cloudTexture2.rgb);
 
 				fixed cloudMorph = baseMorph * _CloudAlpha;
 				fixed horizonBlend = pow(saturate(1 - length(i.uv0 * 2.0 + -1.0)), _HorizonBlend);
         		cloudMorph *= horizonBlend;
+
+#ifdef NO_MORPH
+				cloudMorph = 0.5;
+#elif defined(ONLY_BASE_MORPH)
+				cloudMorph = baseMorph;
+#endif
+
                 fixed cloudAlphaCut = cloudMorph -_CloudAlphaCut;
-                 
+
+				// clip
                 clip(saturate(ceil(cloudAlphaCut)) - 0.5);
+
+
+				// calculate lighting factors
                 fixed fakeDepth = saturate(-_Density + (i.vertexColor.b * _CloudNormalsDirection.g + 1) / 2);
-               
-                cloudMorph = saturate(cloudMorph);
+
+#ifdef LOCK_FAKE_DEPTH
+				fakeDepth = 0.5;
+#endif
 
                 fixed3 sunDir = normalize(_SunDirection);
                 fixed3 moonDir = normalize(_MoonDirection);
@@ -132,6 +156,8 @@ Shader "Enviro/Clouds" {
 			    fixed3 highlightClrSun = (_SunColor * (lightIntensity * _direct)) * fakeDepth;
 			    fixed3 highlightClrMoon = (_MoonColor * (lightIntensity * _direct)) * fakeDepth;
 
+
+				// do coloring
 			    fixed3 baseClr = _BaseColor.rgb;
 			    fixed3 baseClr2 = _BaseColor.rgb * 0.25;
 
@@ -153,7 +179,11 @@ Shader "Enviro/Clouds" {
 					 finalColor = pow(finalColor,0.454545) * _SkyColor;
 				#endif
 
-			   fixed alpha = clamp( (cloudMorph ) * (fakeDepth * 1.25),0,1);
+			   fixed alpha = clamp(saturate(cloudMorph ) * (fakeDepth * 1.25),0,1);
+
+#ifdef LOCK_ALPHA
+			   alpha = 0.5;
+#endif
 
                return fixed4(finalColor, alpha);
             }
