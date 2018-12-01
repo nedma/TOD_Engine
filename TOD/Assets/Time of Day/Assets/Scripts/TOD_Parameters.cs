@@ -66,6 +66,7 @@ using System;
 {
     /// Artistic value to shift the scattering color of the atmosphere.
     /// Can be used to easily simulate alien worlds.
+    [ColorUsage(true, true, 0f, 8f, 0.125f, 3f)]
     public Color ScatteringColor = Color.white;
 
     /// [0, &infin;]

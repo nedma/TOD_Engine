@@ -14,6 +14,7 @@ public partial class TOD_Sky : MonoBehaviour
         }
     }
 
+    // [nedma]Core Update()
     protected void Update()
     {
         Cycle.CheckRange();
