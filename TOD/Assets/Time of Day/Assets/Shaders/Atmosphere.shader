@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Time of Day/Atmosphere"
 {
 	Properties
@@ -188,7 +190,7 @@ Shader "Time of Day/Atmosphere"
                 o.color.rgb = pow(o.color.rgb, _Contrast);
 
                 // Write position
-                o.position = mul(UNITY_MATRIX_MVP, v.vertex);
+                o.position = UnityObjectToClipPos(v.vertex);
 
                 return o;
             }

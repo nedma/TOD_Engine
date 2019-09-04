@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Time of Day/Cloud Layers (Bumped)"
 {
     Properties
@@ -79,7 +81,7 @@ Shader "Time of Day/Cloud Layers (Bumped)"
                 //fixed3 moonglow = TOD_MoonColor * pow(max(0, dot(v.normal, moonvec)), 10);
 
                 // Write results
-                o.position   = mul(UNITY_MATRIX_MVP, v.vertex);
+                o.position   = UnityObjectToClipPos(v.vertex);
                 o.color      = pow(TOD_CloudColor, TOD_OneOverGamma);
                 o.cloudUV.xy = (vertuv + _CloudUV.xy) / _CloudScale1;
                 o.cloudUV.zw = (vertuv + _CloudUV.zw) / _CloudScale2;

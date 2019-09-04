@@ -1,3 +1,6 @@
+// Upgrade NOTE: replaced '_Projector' with 'unity_Projector'
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Time of Day/Cloud Shadows (1)"
 {
     Properties
@@ -28,7 +31,7 @@ Shader "Time of Day/Cloud Shadows (1)"
             uniform float4 _CloudUV;
 
             uniform sampler2D _NoiseTexture;
-            uniform float4x4 _Projector;
+            uniform float4x4 unity_Projector;
 
             struct v2f {
                 float4 pos     : POSITION;
@@ -43,10 +46,10 @@ Shader "Time of Day/Cloud Shadows (1)"
                 float3 vertnorm = -TOD_LocalLightDirection;
                 float2 vertuv   = vertnorm.xz / pow(vertnorm.y + 0.1, 0.75);
 
-                float4 projPos  = mul(_Projector, v.vertex);
+                float4 projPos  = mul(unity_Projector, v.vertex);
                 float2 uvoffset = 0.5 + projPos.xy / projPos.w;
 
-                o.pos        = mul(UNITY_MATRIX_MVP, v.vertex);
+                o.pos        = UnityObjectToClipPos(v.vertex);
                 o.cloudUV.xy = uvoffset + (vertuv + _CloudUV.xy) / _CloudScale1;
                 o.cloudUV.zw = uvoffset + (vertuv + _CloudUV.zw) / _CloudScale2;
                 o.shape      = _CloudSharpness * 0.15 - max(0, 1-_CloudSharpness) * 0.3;

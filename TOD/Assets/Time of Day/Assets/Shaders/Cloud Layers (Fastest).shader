@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Time of Day/Cloud Layers (Fastest)"
 {
     Properties
@@ -67,7 +69,7 @@ Shader "Time of Day/Cloud Layers (Fastest)"
                 float3 moonvec  = -TOD_LocalMoonDirection;
 
                 // Write results
-                o.position = mul(UNITY_MATRIX_MVP, v.vertex);
+                o.position = UnityObjectToClipPos(v.vertex);
                 o.color    = pow(TOD_CloudColor, TOD_OneOverGamma);
                 o.cloudUV  = (vertuv + _CloudUV.xy) / _CloudScale1;
                 o.params.x = _CloudDensity * vertfade;

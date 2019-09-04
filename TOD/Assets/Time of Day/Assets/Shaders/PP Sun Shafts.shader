@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Hidden/Time of Day/Sun Shafts"
 {
     Properties
@@ -37,7 +39,7 @@ Shader "Hidden/Time of Day/Sun Shafts"
 
     v2f vert(appdata_img v) {
         v2f o;
-        o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+        o.pos = UnityObjectToClipPos(v.vertex);
         o.uv = v.texcoord.xy;
 
         #if SHADER_API_D3D9
@@ -51,7 +53,7 @@ Shader "Hidden/Time of Day/Sun Shafts"
 
     v2f_radial vert_radial(appdata_img v) {
         v2f_radial o;
-        o.pos = mul(UNITY_MATRIX_MVP, v.vertex);
+        o.pos = UnityObjectToClipPos(v.vertex);
 
         o.uv.xy =  v.texcoord.xy;
         o.blurVector = (_SunPosition.xy - v.texcoord.xy) * _BlurRadius4.xy;

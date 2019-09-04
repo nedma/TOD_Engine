@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Time of Day/Moon"
 {
     Properties
@@ -55,7 +57,7 @@ Shader "Time of Day/Moon"
 
                 float3 viewdir = normalize(ObjSpaceViewDir(v.vertex));
 
-                o.position   = mul(UNITY_MATRIX_MVP, v.vertex);
+                o.position   = UnityObjectToClipPos(v.vertex);
                 o.uv_MainTex = TRANSFORM_TEX(v.texcoord, _MainTex);
                 o.normal     = v.normal;
                 o.shadedir   = normalize(viewdir + offset);

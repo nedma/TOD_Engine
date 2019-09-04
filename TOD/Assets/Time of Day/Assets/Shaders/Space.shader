@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Time of Day/Space"
 {
     Properties
@@ -47,7 +49,7 @@ Shader "Time of Day/Space"
                 float3 vertnorm = normalize(v.vertex.xyz);
                 float2 starUV = vertnorm.xz / (vertnorm.y + 1);
 
-                o.position = mul(UNITY_MATRIX_MVP, v.vertex);
+                o.position = UnityObjectToClipPos(v.vertex);
                 o.uv_MainTex = TRANSFORM_TEX(starUV, _MainTex);
 
                 return o;
