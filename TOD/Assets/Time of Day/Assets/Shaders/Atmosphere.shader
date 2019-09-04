@@ -65,7 +65,7 @@ Shader "Time of Day/Atmosphere"
             uniform float2 _BetaMiePhase;
             uniform float3 _BetaNight;
 
-			// Sun irradiance
+			// [nedma]Sun irradiance
             inline float3 L(float3 viewdir, float3 sundir) {
                 float3 res;
 
@@ -93,7 +93,7 @@ Shader "Time of Day/Atmosphere"
             }
 
 			// Calculate attenuated spectral distribution(by optical depth)
-			//类比extinction项
+			// [nedma]类比extinction项
 			// See [7] page 28 equation 2.7,2.8
             inline float3 T(float height) {
                 float3 res;
