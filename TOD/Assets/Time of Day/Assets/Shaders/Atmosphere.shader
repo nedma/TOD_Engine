@@ -4,11 +4,7 @@ Shader "Time of Day/Atmosphere"
 {
 	Properties
 	{
-		[Toggle(DB_SHOW_SCATTERING)]_ShowScattering("Show Scattering?", Float) = 0
-		[Toggle(DB_SHOW_CLOUND)]_ShowCloud("Show Cloud?", Float) = 0
-		[Toggle(DB_SHOW_FOG)]_ShowFog("Show Fogness?", Float) = 0
-		[Toggle(DB_SHOW_ADD_COLOR)]_ShowAddColor("Show Additive Color?", Float) = 0
-		[Toggle(DB_SHOW_ALPHA)]_ShowAlpha("Show Alpha?", Float) = 0
+		[KeywordEnum(None, SHOW_SCATTERING, SHOW_CLOUND, SHOW_FOG, SHOW_ALPHA, SHOW_ADD_COLOR)] DB("Debug Mode", Float) = 0
 	}
 
     SubShader
@@ -34,11 +30,7 @@ Shader "Time of Day/Atmosphere"
 
             CGPROGRAM
 
-			#pragma shader_feature DB_SHOW_SCATTERING
-			#pragma shader_feature DB_SHOW_CLOUND
-			#pragma shader_feature DB_SHOW_FOG
-			#pragma shader_feature DB_SHOW_ALPHA
-			#pragma shader_feature DB_SHOW_ADD_COLOR
+			#pragma shader_feature _ DB_SHOW_SCATTERING DB_SHOW_CLOUND DB_SHOW_FOG DB_SHOW_ALPHA DB_SHOW_ADD_COLOR
 
 
             #pragma vertex vert
