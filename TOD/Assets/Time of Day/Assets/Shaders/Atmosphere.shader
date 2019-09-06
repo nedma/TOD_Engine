@@ -4,7 +4,7 @@ Shader "Time of Day/Atmosphere"
 {
 	Properties
 	{
-		[KeywordEnum(None, SHOW_SCATTERING, SHOW_CLOUD, SHOW_FOG, SHOW_ALPHA, SHOW_EXTINCTION)] DB("Debug Mode", Float) = 0
+		[KeywordEnum(None, SHOW_SCATTERING, SHOW_CLOUD, SHOW_FOG, SHOW_ALPHA, SHOW_EXTINCTION, SHOW_MIE)] DB("Debug Mode", Float) = 0
 	}
 
     SubShader
@@ -30,7 +30,7 @@ Shader "Time of Day/Atmosphere"
 
             CGPROGRAM
 
-			#pragma shader_feature _ DB_SHOW_SCATTERING DB_SHOW_CLOUD DB_SHOW_FOG DB_SHOW_EXTINCTION
+			#pragma shader_feature _ DB_SHOW_SCATTERING DB_SHOW_CLOUD DB_SHOW_FOG DB_SHOW_EXTINCTION DB_SHOW_MIE
 
 
             #pragma vertex vert
@@ -143,10 +143,6 @@ Shader "Time of Day/Atmosphere"
 				scatteringColor.rgb = (1-T_val) * (E_sun*L_sun + E_moon*L_moon);
 				scatteringColor.a   = 10 * max(max(scatteringColor.r, scatteringColor.g), scatteringColor.b);
 
-				//scatteringColor.rgb = L_sun * 0.1;  // mie scattering before applying extinction
-				//scatteringColor.rgb = T_val;
-				//scatteringColor.rgb = 1 - T_val;
-
                 // Add simple moon halo
 				float3 moonHalo = TOD_MoonHaloColor * pow(max(0, dot(TOD_LocalMoonDirection, -v.normal)), 10);
 
@@ -163,6 +159,9 @@ Shader "Time of Day/Atmosphere"
 				o.color.a = 1;
 #elif defined(DB_SHOW_EXTINCTION)
 				o.color.rgb = 1 - T_val; // sun color(T_val) --> blue
+				o.color.a = 1;
+#elif defined(DB_SHOW_MIE)
+				o.color.rgb = L_sun * 0.1;  // mie scattering before applying extinction
 				o.color.a = 1;
 #elif defined(DB_SHOW_CLOUD)
 				o.color.rgb = TOD_CloudColor;
