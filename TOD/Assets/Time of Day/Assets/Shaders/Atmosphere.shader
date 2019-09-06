@@ -4,7 +4,7 @@ Shader "Time of Day/Atmosphere"
 {
 	Properties
 	{
-		[KeywordEnum(None, SHOW_SCATTERING, SHOW_CLOUND, SHOW_FOG, SHOW_ALPHA, SHOW_ADD_COLOR)] DB("Debug Mode", Float) = 0
+		[KeywordEnum(None, SHOW_SCATTERING, SHOW_CLOUD, SHOW_FOG, SHOW_ALPHA, SHOW_EXTINCTION)] DB("Debug Mode", Float) = 0
 	}
 
     SubShader
@@ -30,7 +30,7 @@ Shader "Time of Day/Atmosphere"
 
             CGPROGRAM
 
-			#pragma shader_feature _ DB_SHOW_SCATTERING DB_SHOW_CLOUND DB_SHOW_FOG DB_SHOW_ALPHA DB_SHOW_ADD_COLOR
+			#pragma shader_feature _ DB_SHOW_SCATTERING DB_SHOW_CLOUD DB_SHOW_FOG DB_SHOW_EXTINCTION
 
 
             #pragma vertex vert
@@ -59,7 +59,7 @@ Shader "Time of Day/Atmosphere"
             uniform float2 _BetaMiePhase;
             uniform float3 _BetaNight;
 
-			// [nedma]Sun irradiance
+			// [nedma]Mie scattering irradiance
             inline float3 L(float3 viewdir, float3 sundir) {
                 float3 res;
 
@@ -86,8 +86,8 @@ Shader "Time of Day/Atmosphere"
                 return _BetaNight;
             }
 
-			// Calculate attenuated spectral distribution(by optical depth)
 			// [nedma]Àà±ÈextinctionÏî
+			// Calculate attenuated spectral distribution(by optical depth)
 			// See [7] page 28 equation 2.7,2.8
             inline float3 T(float height) {
                 float3 res;
@@ -143,10 +143,9 @@ Shader "Time of Day/Atmosphere"
 				scatteringColor.rgb = (1-T_val) * (E_sun*L_sun + E_moon*L_moon);
 				scatteringColor.a   = 10 * max(max(scatteringColor.r, scatteringColor.g), scatteringColor.b);
 
-				//scatteringColor.rgb = L_sun * 0.1;
-				//scatteringColor.rgb = E_sun;
+				//scatteringColor.rgb = L_sun * 0.1;  // mie scattering before applying extinction
 				//scatteringColor.rgb = T_val;
-				//scatteringColor.a = 1;
+				//scatteringColor.rgb = 1 - T_val;
 
                 // Add simple moon halo
 				float3 moonHalo = TOD_MoonHaloColor * pow(max(0, dot(TOD_LocalMoonDirection, -v.normal)), 10);
@@ -159,19 +158,17 @@ Shader "Time of Day/Atmosphere"
 				o.color.rgb = lerp(o.color.rgb, TOD_CloudColor, _Fogginess);
 				o.color.a += _Fogginess;
 
-#if defined(DB_SHOW_SCATTERING)
+#if   defined(DB_SHOW_SCATTERING)
 				o.color = scatteringColor;
-#elif defined(DB_SHOW_CLOUND)
+				o.color.a = 1;
+#elif defined(DB_SHOW_EXTINCTION)
+				o.color.rgb = 1 - T_val; // sun color(T_val) --> blue
+				o.color.a = 1;
+#elif defined(DB_SHOW_CLOUD)
 				o.color.rgb = TOD_CloudColor;
 				o.color.a = 1;
 #elif defined(DB_SHOW_FOG)
 				o.color.rgb = _Fogginess;
-				o.color.a = 1;
-#elif defined(DB_SHOW_ADD_COLOR)
-				o.color = TOD_AdditiveColor;
-				o.color.a = 1;
-#elif defined(DB_SHOW_ALPHA)
-				o.color.rgb = o.color.a;
 				o.color.a = 1;
 #endif
 
