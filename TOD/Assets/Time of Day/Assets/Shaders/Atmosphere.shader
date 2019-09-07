@@ -76,8 +76,10 @@ Shader "Time of Day/Atmosphere"
                                  + _BetaMieTheta / pow(_BetaMiePhase.x - _BetaMiePhase.y * cosTheta, 1.5);
 
                 // Scattering solution
-                // See [5] page 11
+                // See [5] page 11 - Inscattering Irradiance
                 res = angular * betaTheta * _OneOverBeta;
+				
+				//res = 1 / pow(_BetaMiePhase.x - _BetaMiePhase.y * cosTheta, 1.5);  // [nedma]This item determines the mie inscattering shape, dependent on "g" in the phase function
 
                 return res;
             }
@@ -161,7 +163,7 @@ Shader "Time of Day/Atmosphere"
 				o.color.rgb = 1 - T_val; // sun color(T_val) --> blue
 				o.color.a = 1;
 #elif defined(DB_SHOW_MIE)
-				o.color.rgb = L_sun * 0.1;  // mie scattering before applying extinction
+				o.color.rgb = L_sun * 0.05;  // mie scattering before applying extinction
 				o.color.a = 1;
 #elif defined(DB_SHOW_CLOUD)
 				o.color.rgb = TOD_CloudColor;
